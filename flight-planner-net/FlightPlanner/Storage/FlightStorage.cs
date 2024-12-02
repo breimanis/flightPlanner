@@ -34,5 +34,28 @@ namespace FlightPlanner.Storage
                 x.ArrivalTime == flight.ArrivalTime)
                 .Any();
         }
+
+        public static bool AreAirportsEqual(Airport one, Airport two) // so var izdzest, kko biju sajaucis
+        {
+            return one.City == two.City && one.Country == two.Country && one.AirportCode == two.AirportCode;
+        }
+
+        public static Flight[] SearchFlightFromRequest(SearchFlightRequest request)
+        {
+            var flightList = _flights.Where(x => x.From.AirportCode == request.From &&
+                                       x.To.AirportCode == request.To).ToArray();
+
+            return flightList.Any() ? new Flight[0] : flightList;
+        }
+
+        public static PageResult CreatePageResult(List<Flight> flights)
+        {
+            return new PageResult
+            {
+                page = 0,
+                totalItems = flights.Count,
+                items = flights.ToArray()
+            };
+        }
     }
 }

@@ -43,8 +43,7 @@ describe("Airport Typeahead", () => {
         ];
 
         await Promise.all([
-            await AdminFlightApi.addFlight(flight1)
-            ,
+            await AdminFlightApi.addFlight(flight1),
             await AdminFlightApi.addFlight(flight2),
             await AdminFlightApi.addFlight(flight3)
         ])

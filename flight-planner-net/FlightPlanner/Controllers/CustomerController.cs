@@ -1,4 +1,5 @@
-﻿using FlightPlanner.Storage;
+﻿using FlightPlanner.Models;
+using FlightPlanner.Storage;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlightPlanner.Controllers
@@ -9,14 +10,27 @@ namespace FlightPlanner.Controllers
     {
         [Route("airports")]
         [HttpGet]
-        public IActionResult SearchAirports(string search)
+        public IActionResult SearchAirports(string search) => Ok(AirportStorage.SearchAirports(search));
+
+        [HttpPost]
+        [Route("flights/search")]
+        public IActionResult SearchFlights(SearchFlightRequest req)
         {
-            var ret = AirportStorage.SearchAirports(search);
-            return Ok(ret);
+            Flight[] flights = FlightStorage.SearchFlightFromRequest(req);
+
+            if (req.From == req.To)
+                return BadRequest();
+
+            return Ok(new PageResult
+            {
+                page = 0, // kas ir sis?
+                totalItems = flights.Length,
+                items = flights
+            });
         }
 
-        [Route("flights/${id}")]
+        [Route("flights/{id}")]
         [HttpGet]
-        public IActionResult GetAirPortById(int id) => Ok(FlightStorage.GetFlight(id));
+        public IActionResult FindFlightById(int id) => FlightStorage.GetFlight(id) == null ? NotFound() : Ok(FlightStorage.GetFlight(id));
     }
 }

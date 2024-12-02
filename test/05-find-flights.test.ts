@@ -6,6 +6,7 @@ describe("Finding Flights", () => {
     beforeEach(() => TestApi.clear());
 
     it("should return no results when nothing found", async done => {
+        console.log("xdxdxdxdxdddddddddddd")
         const request = new SearchFlightsRequest(
             ARN.airport,
             DXB.airport,
