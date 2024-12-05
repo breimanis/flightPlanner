@@ -36,11 +36,7 @@ namespace FlightPlanner.Controllers
                 if (FlightStorage.DoesFlightExist(flight))
                     return Conflict();
 
-                if (!FlightValidator.ValidAirport(flight.To) ||
-                    !FlightValidator.ValidAirport(flight.From) ||
-                    !FlightValidator.ValidFlight(flight) ||
-                    FlightValidator.AreAirportsEqual(flight.To, flight.From) ||
-                    FlightValidator.InvalidDates(flight.DepartureTime, flight.ArrivalTime))
+                if (!FlightValidator.IsValidFlight(flight))
                     return BadRequest();
 
                 FlightStorage.AddFlight(flight);

@@ -4,20 +4,26 @@ namespace FlightPlanner.Storage
 {
     public static class FlightStorage
     {
+        private static readonly object lockObject = new object();
+
         private static List<Flight> _flights = new List<Flight>();
         private static int _id = 0;
 
         public static Flight AddFlight(Flight flight)
         {
-            flight.Id = ++_id;
-            _flights.Add(flight);
+            lock (lockObject)
+            {
 
-            if (flight.From != null && !AirportStorage.AirportAlreadyInList(flight.From))
-                AirportStorage.AddAirport(flight.From);
-            if (flight.To != null && !AirportStorage.AirportAlreadyInList(flight.To))
-                AirportStorage.AddAirport(flight.To);
+                flight.Id = ++_id;
+                _flights.Add(flight);
 
-            return flight;
+                if (flight.From != null && !AirportStorage.AirportAlreadyInList(flight.From))
+                    AirportStorage.AddAirport(flight.From);
+                if (flight.To != null && !AirportStorage.AirportAlreadyInList(flight.To))
+                    AirportStorage.AddAirport(flight.To);
+
+                return flight;
+            }
         }
 
         public static Flight? GetFlight(int id) => _flights.FirstOrDefault(x => x.Id == id);
@@ -35,17 +41,15 @@ namespace FlightPlanner.Storage
                 .Any();
         }
 
-        public static bool AreAirportsEqual(Airport one, Airport two) // so var izdzest, kko biju sajaucis
-        {
-            return one.City == two.City && one.Country == two.Country && one.AirportCode == two.AirportCode;
-        }
 
         public static Flight[] SearchFlightFromRequest(SearchFlightRequest request)
         {
-            var flightList = _flights.Where(x => x.From.AirportCode == request.From &&
-                                       x.To.AirportCode == request.To).ToArray();
+            var flightList = _flights.Where(
+                x => x.From.AirportCode == request.From &&
+                x.To.AirportCode == request.To)
+                .ToArray();
 
-            return flightList.Any() ? new Flight[0] : flightList;
+            return flightList.Any() ? flightList : new Flight[0];
         }
 
         public static PageResult CreatePageResult(List<Flight> flights)

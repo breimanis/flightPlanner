@@ -6,26 +6,18 @@ namespace FlightPlanner.Utils
 {
     public static class FlightValidator
     {
-        //any prop in Flight nullCheck, sim noteikti ir gatava metode, cireiz pameklesu
-        public static bool ValidFlight(Flight flight)
+        public static bool IsValidFlight(Flight flight)
         {
-            var x = String.IsNullOrEmpty(flight.Carrier.Trim());
-            bool invalidCheck = (String.IsNullOrEmpty(flight.ArrivalTime) || String.IsNullOrEmpty(flight.DepartureTime) || String.IsNullOrEmpty(flight.Carrier.Trim()));
-            //r x = String.IsNullOrEmpty(flight.Carrier.Trim());
-            return !invalidCheck;
-        }
-            
-        //=> ( !String.IsNullOrEmpty(flight.ArrivalTime) && !String.IsNullOrEmpty(flight.DepartureTime) && !String.IsNullOrEmpty(flight.Carrier.Trim()));
+            bool airportsValid = !AreAirportsEqual(flight.From, flight.To);
+            bool flightDataValid = (!String.IsNullOrEmpty(flight.ArrivalTime) && !String.IsNullOrEmpty(flight.DepartureTime) && !String.IsNullOrEmpty(flight.Carrier.Trim()));
+            bool areDatesCorrect = AreDatesValid(flight.DepartureTime, flight.ArrivalTime);
 
-        //any prop or Airport nullCheck
-        public static bool ValidAirport(Airport? airport)
-        {
-            bool invalidCheck = ( airport == null || String.IsNullOrEmpty(airport?.Country) || String.IsNullOrEmpty(airport?.City) || String.IsNullOrEmpty(airport?.AirportCode) );
-            return !invalidCheck;
+            return airportsValid && flightDataValid && areDatesCorrect;
         }
-        //=> (airport != null && !String.IsNullOrEmpty(airport?.Country) && !String.IsNullOrEmpty(airport?.City) && !String.IsNullOrEmpty(airport?.AirportCode));
-    
-        public static bool AreAirportsEqual(Airport a, Airport b) // deep equality var velak uzmaukt
+
+        public static bool ValidAirport(Airport? airport) => (airport != null && !String.IsNullOrEmpty(airport.Country) && !String.IsNullOrEmpty(airport.City) && !String.IsNullOrEmpty(airport.AirportCode));
+
+        public static bool AreAirportsEqual(Airport a, Airport b)
         {
             bool areEqualCaseInsensitive = (
                 string.Equals(a.City.Trim(), b.City.Trim(), StringComparison.OrdinalIgnoreCase) &&
@@ -35,15 +27,13 @@ namespace FlightPlanner.Utils
 
             return areEqualCaseInsensitive;
         }
-        
-        public static bool InvalidDates(string departure, string arrival)
+
+        public static bool AreDatesValid(string departure, string arrival)
         {
-            //DateTime parsedDepartureTime, parsedArrivalTime;
             var departureDate = DateTime.ParseExact(departure, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
             var arrivalDate = DateTime.ParseExact(arrival, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-            return departureDate >= arrivalDate;
+            return arrivalDate > departureDate;
         }
-
     }
 }
