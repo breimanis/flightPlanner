@@ -10,7 +10,15 @@ namespace FlightPlanner.Controllers
     {
         [Route("airports")]
         [HttpGet]
-        public IActionResult SearchAirports(string search) => Ok(AirportStorage.SearchAirports(search));
+        public IActionResult SearchAirports(string search)
+        {
+            var xd = AirportStorage.SearchAirports12(search);
+            if (xd.Length < 1)
+                return BadRequest();
+
+            Console.WriteLine(xd);
+            return Ok(xd);
+        }
 
         [HttpPost]
         [Route("flights/search")]

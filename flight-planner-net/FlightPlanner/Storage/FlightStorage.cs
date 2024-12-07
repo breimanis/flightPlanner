@@ -1,4 +1,5 @@
 ﻿using FlightPlanner.Models;
+using FlightPlanner.Utils;
 
 namespace FlightPlanner.Storage
 {
@@ -13,13 +14,12 @@ namespace FlightPlanner.Storage
         {
             lock (lockObject)
             {
-
                 flight.Id = ++_id;
                 _flights.Add(flight);
 
-                if (flight.From != null && !AirportStorage.AirportAlreadyInList(flight.From))
+                if (FlightValidator.ValidAirport(flight.From) && FlightValidator.ValidAirport(flight.To) && !AirportStorage.AirportAlreadyInList(flight.From))
                     AirportStorage.AddAirport(flight.From);
-                if (flight.To != null && !AirportStorage.AirportAlreadyInList(flight.To))
+                if (FlightValidator.ValidAirport(flight.From) && FlightValidator.ValidAirport(flight.To) && !AirportStorage.AirportAlreadyInList(flight.To))
                     AirportStorage.AddAirport(flight.To);
 
                 return flight;
@@ -27,7 +27,11 @@ namespace FlightPlanner.Storage
         }
 
         public static Flight? GetFlight(int id) => _flights.FirstOrDefault(x => x.Id == id);
-        public static void ClearFlights() => _flights.Clear();
+        public static void ClearFlights()
+        {
+            _flights.Clear();
+            AirportStorage.ClearAirports(); // sis diezgan ify,search flight by incomplete test failo citadak
+        }
         public static void DeleteFlight(int id) => _flights.RemoveAll(x => x.Id == id);
 
         public static bool DoesFlightExist(Flight flight) // sis parak messy (?)

@@ -9,10 +9,11 @@ namespace FlightPlanner.Utils
         public static bool IsValidFlight(Flight flight)
         {
             bool airportsValid = !AreAirportsEqual(flight.From, flight.To);
+            bool bothAirportsAreValid = ValidAirport(flight.From) && ValidAirport(flight.To);
             bool flightDataValid = (!String.IsNullOrEmpty(flight.ArrivalTime) && !String.IsNullOrEmpty(flight.DepartureTime) && !String.IsNullOrEmpty(flight.Carrier.Trim()));
             bool areDatesCorrect = AreDatesValid(flight.DepartureTime, flight.ArrivalTime);
 
-            return airportsValid && flightDataValid && areDatesCorrect;
+            return airportsValid && flightDataValid && areDatesCorrect && bothAirportsAreValid;
         }
 
         public static bool ValidAirport(Airport? airport) => (airport != null && !String.IsNullOrEmpty(airport.Country) && !String.IsNullOrEmpty(airport.City) && !String.IsNullOrEmpty(airport.AirportCode));
