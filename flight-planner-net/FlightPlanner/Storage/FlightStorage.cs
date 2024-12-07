@@ -6,7 +6,6 @@ namespace FlightPlanner.Storage
     public static class FlightStorage
     {
         private static readonly object lockObject = new object();
-
         private static List<Flight> _flights = new List<Flight>();
         private static int _id = 0;
 
