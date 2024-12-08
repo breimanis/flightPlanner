@@ -1,2 +1,5 @@
 node_modules
 .vs
+/flight-planner-net/FlightPlanner/FlightPlanner.csproj
+/flight-planner-net/FlightPlanner/bin
+/flight-planner-net/FlightPlanner/obj
