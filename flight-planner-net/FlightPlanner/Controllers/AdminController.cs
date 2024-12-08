@@ -24,7 +24,7 @@ namespace FlightPlanner.Controllers
         {
             lock (lockObject)
             {
-                Flight? flight = FlightStorage.GetFlight(id);
+                Flight? flight = _storage.GetFlight(id);
                 return flight == null ? NotFound() : Ok(flight);
             }
         }
@@ -35,16 +35,13 @@ namespace FlightPlanner.Controllers
         {
             lock (lockObject)
             {
-                if (FlightStorage.DoesFlightExist(flight))
+                if (_storage.DoesFlightExist(flight))
                     return Conflict();
 
                 if (!FlightValidator.IsValidFlight(flight))
                     return BadRequest();
 
                 _storage.AddFlight(flight);
-                //_dbContext.Flights.Add(flight);
-                //_dbContext.SaveChanges();
-                //FlightStorage.AddFlight(flight);
 
                 return Created("", flight);
             }
@@ -57,7 +54,7 @@ namespace FlightPlanner.Controllers
         {
             lock (lockObject)
             {
-                FlightStorage.DeleteFlight(id);
+                _storage.DeleteFlight(id);
                 return Ok();
             }
         }

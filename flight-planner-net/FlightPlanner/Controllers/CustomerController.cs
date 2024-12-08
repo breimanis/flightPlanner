@@ -1,4 +1,5 @@
-﻿using FlightPlanner.Models;
+﻿using FlightPlanner.Database;
+using FlightPlanner.Models;
 using FlightPlanner.Storage;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,13 +7,23 @@ namespace FlightPlanner.Controllers
 {
     [Route("api")]
     [ApiController]
-    public class CustomerController : ControllerBase
+    public class CustomerController(FlightPlannerDbContext context, FlightStorage storage) : ControllerBase
     {
+        private readonly FlightPlannerDbContext _dbContext = context;
+        private readonly FlightStorage _storage = storage;
+
         [Route("airports")]
         [HttpGet]
         public IActionResult SearchAirports(string search)
         {
-            var xd = AirportStorage.SearchAirports12(search);
+            search = search.Trim().ToLower();
+            var xd = _dbContext.Airports
+                .Where(x =>
+                    x.City.ToLower().Trim().Contains(search) ||
+                    x.Country.ToLower().Trim().Contains(search) ||
+                    x.AirportCode.ToLower().Trim().Contains(search))
+                .ToArray();
+
             if (xd.Length < 1)
                 return BadRequest();
 
@@ -24,7 +35,7 @@ namespace FlightPlanner.Controllers
         [Route("flights/search")]
         public IActionResult SearchFlights(SearchFlightRequest req)
         {
-            Flight[] flights = FlightStorage.SearchFlightFromRequest(req);
+            Flight[] flights = _storage.SearchFlightFromRequest(req);
 
             if (req.From == req.To)
                 return BadRequest();
@@ -39,6 +50,6 @@ namespace FlightPlanner.Controllers
 
         [Route("flights/{id}")]
         [HttpGet]
-        public IActionResult FindFlightById(int id) => FlightStorage.GetFlight(id) == null ? NotFound() : Ok(FlightStorage.GetFlight(id));
+        public IActionResult FindFlightById(int id) => _storage.GetFlight(id) == null ? NotFound() : Ok(_storage.GetFlight(id));
     }
 }

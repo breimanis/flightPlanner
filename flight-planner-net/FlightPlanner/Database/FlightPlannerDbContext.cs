@@ -8,7 +8,5 @@ namespace FlightPlanner.Database
     {
         public DbSet<Flight> Flights { get; set; }
         public DbSet<Airport> Airports { get; set; }
-
-
     }
 }
