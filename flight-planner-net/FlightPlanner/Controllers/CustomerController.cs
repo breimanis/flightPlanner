@@ -27,7 +27,6 @@ namespace FlightPlanner.Controllers
             if (xd.Length < 1)
                 return BadRequest();
 
-            Console.WriteLine(xd);
             return Ok(xd);
         }
 
