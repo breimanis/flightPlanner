@@ -1,20 +1,23 @@
-﻿using FlightPlanner.Models;
+﻿using FlightPlanner.Database;
+using FlightPlanner.Models;
 using FlightPlanner.Utils;
 
 namespace FlightPlanner.Storage
 {
-    public static class FlightStorage
+    public class FlightStorage(FlightPlannerDbContext context)
     {
+        private readonly FlightPlannerDbContext _dbContext = context;
         private static readonly object lockObject = new object();
         private static List<Flight> _flights = new List<Flight>();
-        private static int _id = 0;
 
-        public static Flight AddFlight(Flight flight)
+        public Flight AddFlight(Flight flight)
         {
             lock (lockObject)
             {
-                flight.Id = ++_id;
-                _flights.Add(flight);
+                //_flights.Add(flight);
+                _dbContext.Flights.Add(flight);
+                _dbContext.SaveChanges();
+
 
                 if (FlightValidator.ValidAirport(flight.From) && FlightValidator.ValidAirport(flight.To) && !AirportStorage.AirportAlreadyInList(flight.From))
                     AirportStorage.AddAirport(flight.From);
@@ -26,10 +29,12 @@ namespace FlightPlanner.Storage
         }
 
         public static Flight? GetFlight(int id) => _flights.FirstOrDefault(x => x.Id == id);
-        public static void ClearFlights()
+        public void ClearFlights()
         {
-            _flights.Clear();
-            AirportStorage.ClearAirports(); // sis diezgan ify,search flight by incomplete test failo citadak
+            _dbContext.Flights.RemoveRange(_dbContext.Flights);
+            _dbContext.Airports.RemoveRange(_dbContext.Airports);
+            //_flights.Clear();
+            //AirportStorage.ClearAirports(); // sis diezgan ify,search flight by incomplete test failo citadak
         }
         public static void DeleteFlight(int id) => _flights.RemoveAll(x => x.Id == id);
 

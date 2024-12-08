@@ -1,4 +1,5 @@
-﻿using FlightPlanner.Models;
+﻿using FlightPlanner.Database;
+using FlightPlanner.Models;
 using FlightPlanner.Storage;
 using FlightPlanner.Utils;
 using Microsoft.AspNetCore.Authorization;
@@ -11,8 +12,9 @@ namespace FlightPlanner.Controllers
     [Route("admin-api")]
     [ApiController]
     [Authorize]
-    public class AdminController : ControllerBase
+    public class AdminController(FlightStorage storage) : ControllerBase
     {
+        private readonly FlightStorage _storage = storage;
         private static readonly object lockObject = new object(); 
         //https://medium.com/@ipravn/achieving-efficient-concurrency-in-net-backend-a-comprehensive-guide-ab802fcb4dfc
 
@@ -39,7 +41,10 @@ namespace FlightPlanner.Controllers
                 if (!FlightValidator.IsValidFlight(flight))
                     return BadRequest();
 
-                FlightStorage.AddFlight(flight);
+                _storage.AddFlight(flight);
+                //_dbContext.Flights.Add(flight);
+                //_dbContext.SaveChanges();
+                //FlightStorage.AddFlight(flight);
 
                 return Created("", flight);
             }
