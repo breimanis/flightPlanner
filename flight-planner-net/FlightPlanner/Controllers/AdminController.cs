@@ -48,7 +48,6 @@ namespace FlightPlanner.Controllers
             }
         }
 
-
         [Route("flights/{id}")]
         [HttpDelete]
         public IActionResult DeleteFlight(int id)

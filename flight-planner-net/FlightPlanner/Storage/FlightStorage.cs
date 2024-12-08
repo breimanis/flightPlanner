@@ -28,10 +28,7 @@ namespace FlightPlanner.Storage
             }
         }
 
-        public Flight? GetFlight(int id)
-        {
-            return _dbContext.Flights.Include(f => f.From).Include(f => f.To).FirstOrDefault(x => x.Id == id);
-        }
+        public Flight? GetFlight(int id) => _dbContext.Flights.Include(f => f.From).Include(f => f.To).FirstOrDefault(x => x.Id == id);
 
         public void ClearFlights()
         {
