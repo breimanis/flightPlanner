@@ -1,9 +1,11 @@
-﻿using FlightPlanner.Models;
+﻿using FlightPlanner.Database;
+using FlightPlanner.Models;
 using FlightPlanner.Storage;
 using FlightPlanner.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.Eventing.Reader;
 
 namespace FlightPlanner.Controllers
@@ -11,8 +13,9 @@ namespace FlightPlanner.Controllers
     [Route("admin-api")]
     [ApiController]
     [Authorize]
-    public class AdminController : ControllerBase
+    public class AdminController(FlightStorage storage) : ControllerBase
     {
+        private readonly FlightStorage _storage = storage;
         private static readonly object lockObject = new object(); 
         //https://medium.com/@ipravn/achieving-efficient-concurrency-in-net-backend-a-comprehensive-guide-ab802fcb4dfc
 
@@ -22,7 +25,7 @@ namespace FlightPlanner.Controllers
         {
             lock (lockObject)
             {
-                Flight? flight = FlightStorage.GetFlight(id);
+                Flight? flight = _storage.GetFlight(id);
                 return flight == null ? NotFound() : Ok(flight);
             }
         }
@@ -33,13 +36,13 @@ namespace FlightPlanner.Controllers
         {
             lock (lockObject)
             {
-                if (FlightStorage.DoesFlightExist(flight))
+                if (_storage.DoesFlightExist(flight))
                     return Conflict();
 
                 if (!FlightValidator.IsValidFlight(flight))
                     return BadRequest();
 
-                FlightStorage.AddFlight(flight);
+                _storage.AddFlight(flight);
 
                 return Created("", flight);
             }
@@ -52,7 +55,7 @@ namespace FlightPlanner.Controllers
         {
             lock (lockObject)
             {
-                FlightStorage.DeleteFlight(id);
+                _storage.DeleteFlight(id);
                 return Ok();
             }
         }
